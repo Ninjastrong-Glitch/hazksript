@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Script Browser</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.search-btn {
+    background: #1e88e5;
+    color: white;
+}
+
+.results {
+    margin-top: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.05);
+}
+
+.card h3 {
+    margin: 0 0 5px;
+}
+
+.card p {
+    margin: 3px 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.copy-btn {
+    margin-top: 10px;
+    background: #2196f3;
+    color: white;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <input id="search" placeholder="Searching Scripts">
+    <button class="search-btn" onclick="searchScript()">Search</button>
+</div>
+
+<div class="results" id="results"></div>
+
+<script>
+async function searchScript() {
+    const query = document.getElementById("search").value.trim();
+    const results = document.getElementById("results");
+    results.innerHTML = "⏳ Loading...";
+
+    if (!query) return;
+
+    const api = "https://scriptblox.com/api/script/search?q=" + encodeURIComponent(query);
+    const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(api);
+
+    try {
+        const res = await fetch(proxy);
+        const data = await res.json();
+
+        results.innerHTML = "";
+
+        data.result.scripts.forEach(s => {
+            const card = document.createElement("div");
+            card.className = "card";
+
+            card.innerHTML = `
+                <h3>${s.title}</h3>
+                <p>🎮 Game: ${s.game?.name || "Universal"}</p>
+                <p>👤 Author: ${s.owner?.username || "Unknown"}</p>
+                <button class="copy-btn">Copy Script</button>
+            `;
+
+            card.querySelector(".copy-btn").onclick = () => {
+                navigator.clipboard.writeText(s.script);
+                alert("Script copied!");
+            };
+
+            results.appendChild(card);
+        });
+
+    } catch (e) {
+        results.innerHTML = "❌ Gagal load data (CORS / API error)";
+        console.error(e);
+    }
+}
+</script>
+
+</body>
+</html>
