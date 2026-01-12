@@ -1,0 +1,2 @@
+# hazksript
+.html
